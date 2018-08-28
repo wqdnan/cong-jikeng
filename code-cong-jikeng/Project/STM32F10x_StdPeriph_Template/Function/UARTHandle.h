@@ -6,10 +6,10 @@
 
 
 #define FUCMAXNUM 20
+#define ANGLE_NUM 10         //定义倾角模块的个数
 
 
-
-#define SLAVEMAXNUM 32          //设定最大的工作从机数量
+#define SLAVEMAXNUM 255          //设定最大的工作从机数量
 //#define CHECKALIVETIME 5        //单位1s
 #define CHECKDATATIME  1        //单位0.5s
 #define OVERTIMECNT  2          //设定超时时间间隔，单位100ms
@@ -32,6 +32,7 @@ typedef struct
 //	uint16_t pressureReal;           //实时压力值
 	uint16_t waterLevelReal;      //实时水位值，单位：0.01m
 	uint16_t waterFlowReal;       //实时流量值，单位：0.1立方米
+	uint16_t angleReal[ANGLE_NUM][2];      //实测的角度值，0-X轴角度，1-y轴角度
 }uartCtntStruct;
 
 extern uartCtntStruct uartData;

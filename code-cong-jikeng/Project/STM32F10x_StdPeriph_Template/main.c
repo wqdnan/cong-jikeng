@@ -18,7 +18,7 @@
 #include "UARTHandle.h"
 #include "UARTControl.h"
 #include "flash.h"
-
+#include "wwdg.h"
 
 
 /* Private macro -------------------------------------------------------------*/
@@ -31,36 +31,43 @@ uint8_t temp = 0;
   * @param  None
   * @retval None
   */
-float data = 0;
 int main(void)
 {
+	uint16_t data  = 0;
 	e_state fucFlag = rstFlag;
 	e_state slaveFucFlag = enFlag;
 	TIM2Init();
+
+  UART1Init();
+  pinTest();
+  INOUTInit();
+  OUTReset();
+////  DACInit();
 #ifdef STRAIN_CHECK
   TIM4Init();
 #elif  WATER_DEPTH_CHECK
   ADCInit();
 #elif  ANGLE_CHECK
-
+  UART4Init();
 #endif
-  UART1Init();
-//  UART3Init();
-  pinTest();
-  INOUTInit();
-	OUTReset();
-//  DACInit();
-
-
-
+  RESET_Q5();
+  myDelay_ms(5);
+  SET_Q5();
+  
 #ifndef DEBUG
-  SLAVE_NUM = READ_SLAVE_NUMBER();
+//  SLAVE_NUM = READ_SLAVE_NUMBER();
+  if(flashHandle(&data,0)==enFlag)//从flash中读取数据
+  {
+	 SLAVE_NUM = (uint8_t)data;
+  }
   if(SLAVE_NUM == 0)
 	  SLAVE_NUM = 25;
 #endif
-  
+//  wwdgInit();
   while (1)
   {
+//		myDelay_ms(20);
+//		IWDG_ReloadCounter();
 	  if(mainT_state.t10ms_flag == enFlag)
 	  {
 		  mainT_state.t10ms_flag = rstFlag;
@@ -73,6 +80,7 @@ int main(void)
 				  UartTxHandle(USART1,&txBuf1[0],&uartData,&commData);
 			  }
 		  }
+
 	  }
 	  if(mainT_state.t100ms_flag == enFlag)
 	  {
@@ -84,6 +92,7 @@ int main(void)
 		  mainT_state.t1s_flag = rstFlag;
 		  if(slaveFucFlag == enFlag)
 			  Q6_TURN();
+//		  SendStr(SLAVE_UART,&txBuf1[0],6);
 
 	  }
   }

@@ -20,7 +20,8 @@
 #define FUC_CLK_ADC1  RCC_APB2Periph_ADC1
 #define	GPIO_ADC1     GPIOB
 
-#define PROPOTIONFACTOR_A 3.0625   //校正输入电压值与实际压力值的关系 比例数值A
+#define PROPOTIONFACTOR_A 4.59375  //校正输入电压值与实际压力值的关系 比例数值A  采样电阻为160欧
+//#define PROPOTIONFACTOR_A 3.0625  //采样电阻为240欧
 #define PROPOTIONFACTOR_B -2       //校正输入电压值与实际压力值的关系 比例数值B
 
 #define AMP_MULTIPLE  1.3    //用于抵消掉硬件运算的放大比例，使得单片机输出的电压值和实际硬件输出的电压值一致

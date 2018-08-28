@@ -91,7 +91,7 @@ void pinTest(void);
 void INOUTInit(void);
 //void mcExtiInit(FunctionalState flag);
 void OUTReset(void);
-//void readINInfo(void);
+void readINInfo(void);
 //void startFluxHandle(void);
 //void endFluxHandle(void);
 //uint32_t getFluxData(void);

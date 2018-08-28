@@ -13,10 +13,9 @@ typedef enum
 }e_state;
 
 //#define WATER_DEPTH_CHECK 1  //水位监测
-//#define ANGLE_CHECK 2        //倾角监测
 #define STRAIN_CHECK 3       //应力计检测
 
-#define SLAVE_TYPE    STRAIN_CHECK//WATER_DEPTH_CHECK//
+#define SLAVE_TYPE   STRAIN_CHECK//WATER_DEPTH_CHECK// ANGLE_CHECK//
 //#define DEBUG//调试模式，从机ID固定
 
 #ifdef DEBUG

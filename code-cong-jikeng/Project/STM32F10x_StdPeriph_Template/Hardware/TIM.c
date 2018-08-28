@@ -29,7 +29,8 @@ FreqCheck_struct freq1Data =
 	E_CHECK_RST,      //.checkFlag =
 	CHANNEL1,	      //.checkChannel =
 	CHECK_FREQ_STEP,  //.actionStep
-	CHECK_FREQ_INIT   //.actionFreqData
+	CHECK_FREQ_INIT,   //.actionFreqData
+	1                  //.sweepFreqNum
 };
 FreqCheck_struct freq2Data =
 {
@@ -37,7 +38,8 @@ FreqCheck_struct freq2Data =
 	E_CHECK_RST,       //.checkFlag =
 	CHANNEL2,          //.checkChannel =
 	CHECK_FREQ_STEP,   //.actionStep
-	CHECK_FREQ_INIT    //.actionFreqData
+	CHECK_FREQ_INIT,    //.actionFreqData
+	1                   //.sweepFreqNum
 };
 //////////////////fuction end///////////////////////////
 
@@ -54,7 +56,7 @@ void TIM2Init(void)
 	NVIC_InitTypeDef NVIC_InitStructure;
 	uint16_t PrescalerValue =  0;
 	
-	RCC_PCLK1Config(RCC_HCLK_Div4);
+	RCC_PCLK1Config(RCC_HCLK_Div4);//APB1的时钟为18MHz
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);//使用第0组，组优先级最高
@@ -486,7 +488,7 @@ e_state freqErrorBiasCaculate(FreqCheck_struct * freqData,float averageValue)
 	uint8_t i = 0;
 	uint8_t checkValidCnt = CAPTURE_NUM;
 	float caculateNum = 0;
-	static const float ERRORBIAS = 10000;//1000;//400;//100;//50;//30;//20;方差过小了后会出现测不到的现象
+	static const float ERRORBIAS = 30000;//1000;//400;//100;//50;//30;//20;方差过小了后会出现测不到的现象
 	for(i=0;i<CAPTURE_NUM;i++)
 	{
 		if((freqData->captureFreq[i]>(freqData->sendFreq-FREQ_BIAS_RANGE)) \
@@ -514,13 +516,17 @@ float freqAverCacultate(float * freq,uint8_t cnt)
 {
 	uint8_t i = 0;
 	float result = 0;
+	float min = 3000;
 	if(cnt>0)
 	{
 		for(i=0;i<cnt;i++)
 		{
+			if(freq[i]<min)
+				min = freq[i];
 			result += freq[i];
 		}
-		result /= cnt;
+		if(cnt>=2)
+			result = (result-min)/(cnt-1);
 	}
 	return result;
 
@@ -636,7 +642,7 @@ void channelFreqCheck(FreqCheck_struct * freqData)
 					if(freqErrorCnt >= 3)//同一频率尝试三次都不满足条件，则修改频率
 					{
 						freqErrorCnt = 0;
-						if(captureFreAverNum >= 3)//使用平均值带入扫频
+						if(captureFreAverNum >= 10)//使用平均值带入扫频
 						{
 							captureFreTemp = freqAverCacultate(&captureFreAver[0],captureFreAverNum);
 							if(captureFreTemp > 0)
@@ -677,14 +683,26 @@ void channelFreqCheck(FreqCheck_struct * freqData)
 						freqData->actionFreqData = captureFreTemp;
 						freqData->sendFreq = captureFreTemp;
 						freqData->calculateFreq = captureFreTemp;
+						freqData->sweepFreqNum = 1;
 					}
 					else//没有测量的频率值
 					{
 						//freqData->calculateFreq = 0;  //没有测到值，则保持上次的值不变
 						freqData->sendFreq = freqData->actionFreqData;
 						freqData->actionStep += CHECK_FREQ_STEP;
-						if(freqData->actionStep > 250)//(2800-600)/25  (FREQ_MAX-FREQ_MIN)/CHECK_FREQ_BIAS/2
-							freqData->actionStep = CHECK_FREQ_STEP;
+						if(freqData->actionStep > 150)//(2800-600)/15  (FREQ_MAX-FREQ_MIN)/CHECK_FREQ_BIAS/2
+						{
+							freqData->sweepFreqNum ++;
+							if(freqData->sweepFreqNum > 2)
+							{
+								freqData->sweepFreqNum = 1;
+								freqData->calculateFreq = 0;
+							}
+
+							freqData->actionStep = CHECK_FREQ_STEP;//清零了，蜜汁自信原来的一套机制可以测出频率
+							freqData->sendFreq = CHECK_FREQ_INIT-7*freqData->sweepFreqNum;
+						}
+							
 					}
 					freqData->checkFlag = E_CHECK_RST;
 					channelFreqChckCtrl(freqData,DISABLE);

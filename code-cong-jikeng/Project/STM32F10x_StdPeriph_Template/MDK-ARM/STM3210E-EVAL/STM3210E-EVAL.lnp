@@ -41,6 +41,7 @@
 ".\stm3210e-eval\dac.o"
 ".\stm3210e-eval\adc.o"
 ".\stm3210e-eval\flash.o"
+".\stm3210e-eval\wwdg.o"
 ".\stm3210e-eval\uarthandle.o"
 ".\stm3210e-eval\uartcontrol.o"
 ".\stm3210e-eval\fuctioncontrol.o"

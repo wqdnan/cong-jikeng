@@ -1,0 +1,10 @@
+***************yling&swei slave V (author wqdnan) ********************
+***************yling&swei slave V (author wqdnan) ********************
+***************yling&swei slave V (author wqdnan) ********************
+***************yling&swei slave V (author wqdnan) ********************
+***************yling&swei slave V (author wqdnan) ********************
+***************yling&swei slave V (author wqdnan) ********************
+***************yling&swei slave V1.0 (author wqdnan) ********************
+1. 添加了上位机读写ID功能
+2.通用切换两种从机版本
+3.测试稳定

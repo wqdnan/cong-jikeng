@@ -31,8 +31,8 @@ uartCtntStruct uartData;
   *         dataLength-数据内容字节长度
   *         dataCtnt-数据内容存放的首地址
   * @retval None
-  * 格式：帧头|功能码|主机编号|从机编号|数据长度|数据内容|校验和|帧尾
-  * 字节数    1    1     1       1       1      不定        1     1
+  * 格式：帧头|功能码|主机编号|从机类型|从机编号|数据长度|数据内容|校验和|帧尾
+  * 字节数    1    1     1       1        1       1      不定        1     1
   */
 void getDataToFrame(uint8_t *dest,uint8_t * destLength,uint8_t fctnNum,uint8_t masterNum,uint8_t slaveType,uint8_t slaveNum,uint8_t dataLength,uint8_t * dataCtnt)
 {
@@ -48,7 +48,7 @@ void getDataToFrame(uint8_t *dest,uint8_t * destLength,uint8_t fctnNum,uint8_t m
 	for(j=0; j<dataLength; j++)//当dataLength==0时同样适用
 		dest[i++] = dataCtnt[j];
 	for(j=1; j<i; j++)
-		temp ^=  dest[j];
+		temp ^=  dest[j];//异或校验不包括帧头和帧尾
 	if((temp == FRAME_START) || (temp == FRAME_END))//校验位与帧头帧尾进行规避
 		temp += 1;
 	dest[i++] = temp;
@@ -88,7 +88,7 @@ void analyzeFrameContent(uint8_t * rxStr,uartCtntStruct * uartData)
 //				dataTemp[bias] = dataTemp[bias] * 10 + pData[i++];
 //			}
 			//一个字节一个从机的功能数据
-			uartData->rxFrameCtnt[bias++] = rxStr[i+4];
+			uartData->rxFrameCtnt[bias++] = pData[i];//rxStr[i+4];修改了偏移
 		}
 		//放入到数据结构体中
 		uartData->masterNum = rxStr[1];

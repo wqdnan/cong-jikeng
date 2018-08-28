@@ -1480,6 +1480,11 @@
               <FileType>1</FileType>
               <FilePath>..\Hardware\FLASH.c</FilePath>
             </File>
+            <File>
+              <FileName>wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\wwdg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3020,6 +3025,11 @@
               <FileName>FLASH.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\FLASH.c</FilePath>
+            </File>
+            <File>
+              <FileName>wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\wwdg.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4647,6 +4657,11 @@
               <FileName>FLASH.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\FLASH.c</FilePath>
+            </File>
+            <File>
+              <FileName>wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\wwdg.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -6361,6 +6376,11 @@
               <FileType>1</FileType>
               <FilePath>..\Hardware\FLASH.c</FilePath>
             </File>
+            <File>
+              <FileName>wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\wwdg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -7901,6 +7921,11 @@
               <FileName>FLASH.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\FLASH.c</FilePath>
+            </File>
+            <File>
+              <FileName>wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\wwdg.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -9571,6 +9596,11 @@
               <FileName>FLASH.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\FLASH.c</FilePath>
+            </File>
+            <File>
+              <FileName>wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\wwdg.c</FilePath>
             </File>
           </Files>
         </Group>

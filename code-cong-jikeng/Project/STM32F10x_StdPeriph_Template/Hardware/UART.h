@@ -41,13 +41,20 @@
 #define TXBUF3_LENGTH			 100
 
 //#define  USART4
+#define ANGLE_UART              UART4
 #define UART4_GPIO              GPIOC
 #define UART4_CLK               RCC_APB1Periph_UART4
 #define UART4_GPIO_CLK          RCC_APB2Periph_GPIOC
-#define UART4_RxPin              GPIO_Pin_11
-#define UART4_TxPin              GPIO_Pin_10
-#define RXBUF4_LENGTH			 100
-#define TXBUF4_LENGTH			 100
+#define UART4_RxPin             GPIO_Pin_11
+#define UART4_TxPin             GPIO_Pin_10
+#define RXBUF4_LENGTH			100
+#define TXBUF4_LENGTH			100
+#define UART4_DE_CLK            RCC_APB2Periph_GPIOA
+#define UART4_DEPin 			GPIO_Pin_15
+#define UART4_DE_GPIO           GPIOA
+
+#define RX_DE4()  GPIO_SetBits(UART4_DE_GPIO,UART4_DEPin)
+#define TX_DE4()  GPIO_ResetBits(UART4_DE_GPIO,UART4_DEPin)
 
 //#define  USART5
 #define UART5_GPIO_T            GPIOB
@@ -62,19 +69,19 @@
 
 extern char rxBuf1[RXBUF1_LENGTH];
 extern char rxBuf2[RXBUF2_LENGTH];
-extern char rxBuf3[RXBUF3_LENGTH];
+extern char rxBuf4[RXBUF4_LENGTH];
 
 extern char txBuf1[TXBUF1_LENGTH];
 extern char txBuf2[TXBUF2_LENGTH];
-extern char txBuf3[TXBUF3_LENGTH];
+extern char txBuf4[TXBUF4_LENGTH];
 
 extern uint8_t rxLength1;
 extern uint8_t rxLength2;
-extern uint8_t rxLength3;
+extern uint8_t rxLength4;
 
 extern e_state rx1Flag;
 extern e_state rx2Flag;
-extern e_state rx3Flag;
+extern e_state rx4Flag;
 
 
 void UART1Init(void);
@@ -88,7 +95,7 @@ void SendStr(USART_TypeDef* USARTx,uint8_t *str,uint8_t length);
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);
-
+void UART4_IRQHandler(void);
 
 
 #endif

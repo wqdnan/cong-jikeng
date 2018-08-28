@@ -122,14 +122,19 @@ void OUTReset(void)
 
 }
 
-//void readINInfo(void)
-//{
-//	uint8_t inTemp[4] = {0};
+void readINInfo(void)
+{
+	uint8_t inTemp[5] = {0};
 //	inTemp[0] =  READ_MC1();
 //	inTemp[1] =  READ_MC2();
 //	inTemp[2] =  READ_IN3();
 //	inTemp[3] =  READ_IN4();
-//}
+	inTemp[0] =  GPIO_ReadInputDataBit(GPIO_SLAVE, GPIO_PIN_SLAVE_NUMBER1);
+	inTemp[1] =  GPIO_ReadInputDataBit(GPIO_SLAVE, GPIO_PIN_SLAVE_NUMBER2);
+	inTemp[2] =  GPIO_ReadInputDataBit(GPIO_SLAVE, GPIO_PIN_SLAVE_NUMBER3);
+	inTemp[3] =  GPIO_ReadInputDataBit(GPIO_SLAVE, GPIO_PIN_SLAVE_NUMBER4);
+	inTemp[4] = (inTemp[0]<<3)|(inTemp[1]<<2)|(inTemp[2]<<1)|(inTemp[3]);
+}
 /**
   * @brief  启动计算流量
   * @param  None

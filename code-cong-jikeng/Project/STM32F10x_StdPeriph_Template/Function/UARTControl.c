@@ -36,11 +36,17 @@ e_state UartRxFctnCtntHandle(uartCtntStruct * uartData,commCtntStruct * commData
 			result = setParaData(uartData,commData);
 			break;
 		}
-		case 0x21:case 0x22:
+		case 0x77://ID 写入帧格式
+		case 0x78://ID 读出帧格式
 		{
 			result = setFlashData(uartData);
 			break;
 		}
+//		case 0x21:case 0x22:
+//		{
+//			result = setFlashData(uartData);
+//			break;
+//		}
 	}
 	return result;
 }
@@ -88,9 +94,14 @@ e_state UartTxFctnCtntHandle(uartCtntStruct * uartData,commCtntStruct * commData
 			result = enFlag;
 			break;
 		}
-		case 0x21:case 0x22:
+		case 0x77:case 0x78://回复读写ID号
 		{
-			uartData->txFrameCtntNum = 0;
+			uartData->txFrameCtnt[bias] =    (SLAVE_NUM/1000%10)<<4;
+			uartData->txFrameCtnt[bias++] += (SLAVE_NUM/100%10);
+			uartData->txFrameCtnt[bias] =    (SLAVE_NUM/10%10)<<4;
+			uartData->txFrameCtnt[bias++] += (SLAVE_NUM%10);
+			uartData->txFrameCtntNum = bias;
+			uartData->masterNum = 0;
 			result = enFlag;
 			break;
 		}
@@ -150,65 +161,59 @@ e_state setParaData(uartCtntStruct * uartData,commCtntStruct * commData)
 	uint8_t temp = 0;
 	e_state result = rstFlag;
 	float tempf = 0;
-//	if(SLAVE_NUM <= 48)//有触点控制的从机范围号
-//	{
-//		if(SLAVE_NUM > 32)//1~16字段对应从机1~16  17~32字段对应从机33~48
-//			temp = uartData->rxFrameCtnt[SLAVE_NUM-17];
-//		else
-//			temp = uartData->rxFrameCtnt[SLAVE_NUM-1];
-//		if((temp&1) == 1)//系统阀工作 Q1
-//			MSTVALVE_OPEN();//触点工作
-//		else
-//			MSTVALVE_CLOSE();
-//		if((temp&2) == 2)//进油阀工作 Q2
-//			DRCNVALVE_IN();
-//		else
-//			DRCNVALVE_INCLOSE();
-//		if((temp&4) == 4)//泄油阀工作 Q3
-//			DRCNVALVE_OUT();
-//		else
-//			DRCNVALVE_OUTCLOSE();
-//		if((temp&8) == 8)// Q4
-//			RESET_Q4();
-//		else
-//			SET_Q4();
-//		if((temp&16) == 16)// Q5
-//			RESET_Q5();
-//		else
-//			SET_Q5();
-//	}
-
 	if((uartData->slaveNum==SLAVE_NUM) && (uartData->rxSlaveType==SLAVE_TYPE))
 	{
-		//如果是当前从机的控制数据，则需要反馈串口信息
-//		tempf = 0.01*uartData->rxFrameCtnt[uartData->rxFrameCtntNum-1];
-//		outputVoltage(tempf,1);
 		result = enFlag;
 	}
 	return result;
 }
 
+/**
+  * @brief  接收到读写ID帧格式，如果是写入需要验证是否为本从机的ID帧，若是，则需要将新的ID号写入到flash中保存
+  *                          如果是读出，则读出相应ID号的值
+  * @param  ctrlComm-从机通信数据交互结构体
+  * @retval None
+  */
 e_state setFlashData(uartCtntStruct *uartData)
 {
 	e_state result = rstFlag;
 	uint16_t data1 = 0;
-	if(uartData->fucNum == 0x21)//更新flash的值
+	uint8_t oldNum = 0;
+	uint8_t newNum = 0;
+	uint8_t temp[3] = {0};
+	if((uartData->rxFrameCtntNum==6) && (uartData->fucNum==0x77))//写
 	{
-		if(uartData->slaveNum < 100)
+		oldNum = ((uartData->rxFrameCtnt[0]&0xF0)>>4)*10+(uartData->rxFrameCtnt[0]&0x0F);
+		oldNum = oldNum*100 + ((uartData->rxFrameCtnt[1]&0xF0)>>4)*10+(uartData->rxFrameCtnt[1]&0x0F);
+		newNum = ((uartData->rxFrameCtnt[2]&0xF0)>>4)*10+(uartData->rxFrameCtnt[2]&0x0F);
+		newNum = newNum*100 + ((uartData->rxFrameCtnt[3]&0xF0)>>4)*10+(uartData->rxFrameCtnt[3]&0x0F);
+		temp[0] = ((oldNum^newNum)/100)%10;
+		temp[1] = ((oldNum^newNum)/10)%10;
+		temp[1] = temp[1]*10 + (oldNum^newNum)%10;
+		temp[2] = (uartData->rxFrameCtnt[5]&0xF0)>>4;
+		temp[2] = temp[2]*10 + (uartData->rxFrameCtnt[5]&0x0F);
+		if((temp[0] == uartData->rxFrameCtnt[4])&&(temp[1]==temp[2]))//校验正确了
 		{
-			data1 = ((uartData->slaveNum&0xF0)>>4)*10+\
-					(uartData->slaveNum&0x0F);
-			result = flashHandle(&data1,1);
+			//判断是否可以更新flash的值，写入新的ID号
+			if((uartData->rxSlaveType == SLAVE_TYPE) && (oldNum == SLAVE_NUM))
+			{
+				SLAVE_NUM = newNum;
+				data1 = newNum;
+				result = flashHandle(&data1,1);
+			}
 		}
 	}
-	else if(uartData->fucNum == 0x22)//读出flash的值
+	else if((uartData->rxFrameCtntNum==2) && (uartData->fucNum==0x78))//读
 	{
-		flashHandle(&data1,0);
-		uartData->slaveNum = (uint8_t)data1;
-		result = enFlag;
-#ifndef DEBUG
-		SLAVE_NUM = uartData->slaveNum;
-#endif
+		if((uartData->rxFrameCtnt[0]==0xDD) && (uartData->rxFrameCtnt[1]==0xDD))
+		{
+			flashHandle(&data1,0);
+			if(data1!=0)
+			{
+				//uartData->slaveNum = (uint8_t)data1;
+				result = enFlag;
+			}
+		}
 	}
 	return result;
 }

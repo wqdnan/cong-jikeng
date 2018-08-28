@@ -57,6 +57,7 @@ typedef struct
 	CheckChannelFlag_enum checkChannel;   //当前结构体对应的通道
 	uint16_t actionStep;             //实际工作的扫频步长
 	uint16_t actionFreqData;         //记录上一次的初始扫频频率值
+	uint8_t sweepFreqNum;            //扫频超过满步长次数 ，最大为5
 	uint8_t checkCnt;                //记录每个步骤的时间间隔 用于指示每个功能流程的时间长度
 	float captureFreq[CAPTURE_NUM];  //捕获的频率 ，单位Hz
 	float captureCnt[CAPTURE_NUM];
